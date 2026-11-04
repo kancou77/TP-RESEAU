@@ -11,3 +11,5 @@ Fonctionnement :
 4- Le serveur s3 envoie via UDP au client c1 le message "Bonjour TCPs1 UDPs2 UDPs3"
 
 5- Le client c1 affiche le message final "Bonjour TCPs1 UDPs2 UDPs3 TCPs1"
+
+NB: Il faut lancer s1, s2 et s3 puis ensuite c1 !!!
