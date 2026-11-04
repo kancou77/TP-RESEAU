@@ -9,6 +9,8 @@
 #define ADDR "0.0.0.0"
 #define ADDR_UDP "172.16.130.178"
 #define BUFSIZE 512
+#define BUFSIZE1 100
+
 void stop(char *msg) {
  perror(msg);
  exit(EXIT_FAILURE);
@@ -16,17 +18,22 @@ void stop(char *msg) {
 
 int main ( int argc, char ** argv) {
 
- char buffer_reception[100];
+ char buffer_reception[BUFSIZE1];
  char buffer_envoie[BUFSIZE];
+
+ // Création de la socket TCP du serveur
  int socketserver = socket (AF_INET, SOCK_STREAM,0);
  if (socketserver == -1)
    stop("socket");
 
+ //On rajoute l'option qui nous permet de réutiliser la socket
+ int option = 1;
+ setsockopt(socketserver, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
  struct sockaddr_in addrserver;
- memset(&addrserver, 0, sizeof(addrserver));
+ memset(&addrserver, 0, sizeof(addrserver)); //On initialise la struct
 
  addrserver.sin_family = AF_INET;
- addrserver.sin_port = htons(PORT_TCP);
+ addrserver.sin_port = htons(PORT_TCP); 
  inet_aton(ADDR, &addrserver.sin_addr);
 
  if(bind(socketserver,(struct sockaddr *) &addrserver , sizeof(addrserver))==-1){
@@ -39,19 +46,23 @@ int main ( int argc, char ** argv) {
 	 stop("listen");
 }
 
-printf("Attente de connexion\n");
-int sockclient = accept(socketserver, NULL, NULL);
+printf("Attente de connexion\n"); // Serveur prêt
+int sockclient = accept(socketserver, NULL, NULL); // Socket nous permattant de communiquer avec le client
 
-printf("Client connecté\n ");
+printf("Client connecté\n "); // Client connecté
+
 if(sockclient == -1) {
 	close(socketserver);
 	stop("accept");
 }
 
+// On initialise le buffer de reception et d'envoie
 memset(buffer_reception, 0, sizeof(buffer_reception));
 memset(buffer_envoie,0,sizeof(buffer_envoie));
 
+
 int recu = recv(sockclient, buffer_reception, 100, 0);
+//Gestion erreur de recv
 if(recu == -1) {
 	close(sockclient);
 	close(socketserver);
@@ -63,9 +74,9 @@ if(recu==0) {
 	exit(EXIT_FAILURE);
 }
 
-printf("J'ai reçu : %s\n", buffer_reception);
+printf("Données reçues %s\n", buffer_reception);
 snprintf(buffer_envoie, BUFSIZE, "%s TCPs1",buffer_reception);
-
+//On ferme les sockets dont on a plus besoin
 close(sockclient);
 close(socketserver);
 
@@ -85,8 +96,9 @@ if(send <0) {
 	stop("sendto");
 }
 
-printf("Envoie vers s2 effectué\n");
+printf("Données envoyées vers s2 \n");
 
+//On ferme la socket udp
 close(sockudp);
 
 return 0;
