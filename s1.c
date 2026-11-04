@@ -74,7 +74,7 @@ if(recu==0) {
 	exit(EXIT_FAILURE);
 }
 
-printf("Données reçues %s\n", buffer_reception);
+printf("Données reçues \n");
 snprintf(buffer_envoie, BUFSIZE, "%s TCPs1",buffer_reception);
 //On ferme les sockets dont on a plus besoin
 close(sockclient);
